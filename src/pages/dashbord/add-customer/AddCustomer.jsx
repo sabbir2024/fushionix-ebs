@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import { useNavigate } from "react-router";
+import Swal from "sweetalert2";
 const suggestions = [
     {
         id: 101, name: "John Doe",
@@ -35,81 +38,165 @@ const suggestions = [
         location: "Tokyo, Japan"
     }];
 const AddCustomer = () => {
-    const [inputValue, setInputValue] = useState("");
-    const [filteredSuggestions, setFilteredSuggestions] = useState([]);
-    const [userData, setUserData] = useState({
-        name: "",
-        email: "",
-        age: "",
-        location: ""
-    });
 
-    const handleInputChange = (e) => {
-        const value = e.target.value; setInputValue(value);
-        // Filter suggestions based on input 
-        const matches = suggestions.filter((item) => item.name.toLowerCase().includes(value.toLowerCase()));
-        setFilteredSuggestions(matches);
-    };
-    const handleSuggestionClick = (suggestion) => {
-        setInputValue(suggestion.name);
-        setUserData({ name: suggestion.name, email: suggestion.email, age: suggestion.age, location: suggestion.location });
-        setFilteredSuggestions([]);
+    const [isStop, setStop] = useState(false);
+    const [guardianType, setGuardianType] = useState('');
+
+    const axiosSucure = useAxiosSecure();
+    const navigate = useNavigate();
+
+
+    const handelAddedCustomer = async (e) => {
+        e.preventDefault();
+
+        setStop(true);
+
+        const form = e.target;
+        const name = form.name.value;
+        const age = form.age.value;
+        const phone = form.phone.value;
+        const guardianName = form.guardianName.value;
+        const address = form.address.value;
+
+
+
+        const userForm = {
+            name,
+            phone,
+            age,
+            guardian: {
+                guardianType,
+                guardianName
+            },
+            address
+        }
+
+        try {
+            const { data } = await axiosSucure.post('/add-customer', userForm);
+            console.log(data)
+            if (data.acknowledged) {
+                Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: `${name} added successfully`,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                setStop(false)
+            }
+
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: error.message,
+            });
+            setStop(false)
+        }
+    }
+
+    const handleGuardianTypeChange = (e) => {
+        setGuardianType(e.target.value);
     };
 
-    const handleFieldChange = (e) => {
-        const { name, value } = e.target;
-        setUserData((prevData) => ({ ...prevData, [name]: value }));
-    };
+
+    const handleInputChange = () => {
+
+    }
+
+
     return (
-        <div style={{ width: "300px" }}>
-            <label> Name:
-                <input type="text"
-                    value={inputValue}
-                    onChange={handleInputChange}
-                    placeholder="Type a name..."
-                    style={{
-                        width: "100%",
-                        padding: "8px",
-                        marginBottom: "5px"
-                    }} />
-            </label>
-            <label> Email:
-                <input
-                    type="email"
-                    name="email"
-                    value={userData.email}
-                    onChange={handleFieldChange}
-                    placeholder="Enter email"
-                    style={{ width: "100%", padding: "8px", marginBottom: "5px" }} />
-            </label>
-            <label> Age:
-                <input
-                    type="number"
-                    name="age"
-                    value={userData.age}
-                    onChange={handleFieldChange}
-                    placeholder="Enter age"
-                    style={{ width: "100%", padding: "8px", marginBottom: "5px" }} />
-            </label>
-            <label> Location:
-                <input type="text" name="location" value={userData.location}
-                    onChange={handleFieldChange}
-                    placeholder="Enter location"
-                    style={{ width: "100%", padding: "8px", marginBottom: "5px" }} />
-            </label>
-            <div style={{ border: "1px solid #ccc", maxHeight: "100px", overflowY: "auto", background: "#f9f9f9" }} >
-                {filteredSuggestions.length > 0 ? (
-                    filteredSuggestions.map((item) => (
-                        <div key={item.id}
-                            style={{ padding: "8px", cursor: "pointer" }}
-                            onClick={() => handleSuggestionClick(item)} > {item.name} {item.email} </div>)))
-                    :
-                    (
-                        <div style={{ padding: "8px", color: "#777" }}>No match found</div>
 
-                    )}
-            </div>
-        </div>
+        <>
+            <section className="max-w-4xl p-6 mx-auto bg-white rounded-md shadow-md dark:bg-gray-800">
+                <form onSubmit={handelAddedCustomer}>
+                    <div className="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
+                        <div>
+                            <label className="text-gray-700 dark:text-gray-200" htmlFor="name">Name</label>
+                            <input
+                                id="name"
+                                name="name"
+                                type="text"
+                                onChange={handleInputChange}
+                                className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 dark:focus:border-blue-300 focus:outline-none focus:ring"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-gray-700 dark:text-gray-200 flex gap-4" htmlFor="guardian">
+                                Select fast Guardian then Name
+                            </label>
+                            <div className="join flex w-full">
+
+                                <select
+                                    name="guardianType"
+                                    onChange={handleGuardianTypeChange}
+                                    value={guardianType}
+                                    required
+                                    className="select join-item flex-1">
+                                    <option value="" disabled>Select Guardian</option>
+                                    <option value="Father">Father</option>
+                                    <option value="Husband">Husband</option>
+                                </select>
+                                <div>
+                                    <div>
+                                        <input
+                                            id="guardianName"
+                                            name="guardianName"
+                                            type="text"
+                                            className="input join-item w-full flex-2" placeholder="Enter your Guardin Name" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div>
+                            <label className="text-gray-700 dark:text-gray-200" htmlFor="age">Age</label>
+                            <input
+                                id="age"
+                                name="age"
+                                type="number"
+                                step="any"
+                                className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 dark:focus:border-blue-300 focus:outline-none focus:ring [&::-webkit-inner-spin-button]:appearance-none"
+                            />
+                        </div>
+                        <div>
+                            <label className="text-gray-700 dark:text-gray-200" htmlFor="phone">Phone</label>
+                            <input
+                                id="phone"
+                                name="phone"
+                                type="number"
+                                step="any"
+                                className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 dark:focus:border-blue-300 focus:outline-none focus:ring [&::-webkit-inner-spin-button]:appearance-none"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-gray-700 dark:text-gray-200" htmlFor="address">Address</label>
+                            <input
+                                id="address"
+                                name="address"
+                                type="text"
+                                className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 dark:focus:border-blue-300 focus:outline-none focus:ring "
+
+                            />
+                        </div>
+
+                    </div>
+
+                    <div className="flex justify-end mt-6">
+                        <button
+                            type="submit"
+                            disabled={isStop}
+                            className="px-8 py-2.5 leading-5 text-white transition-colors duration-300 transform bg-gray-700 rounded-md hover:bg-gray-600 focus:outline-none focus:bg-gray-600"
+                        >
+                            {isStop ? 'Please Wait' : 'Save'}
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </>
     );
 };
 export default AddCustomer;

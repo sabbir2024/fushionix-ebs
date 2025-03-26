@@ -28,11 +28,11 @@ Fusionix-EBS is a comprehensive Inventory Management System designed to help bus
 ## Installation
 
 ### Prerequisites
-- Node.js (version 14.x or higher)
-- MongoDB (version 4.x or higher)
+- Node.js (version 22.x or higher)
+- MongoDB (version 6.x or higher)
 - npm or yarn package manager
 
 ### Setup Instructions
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/fusionix-ebs.git
+   git clone https://github.com/sabbir2024/fushionix-ebs.git
