@@ -1,46 +1,16 @@
 import React, { useState } from "react";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
-import { useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import Swal from "sweetalert2";
-const suggestions = [
-    {
-        id: 101, name: "John Doe",
-        email: "johndoe@example.com",
-        age: 29,
-        location: "Dhaka, Bangladesh"
-    },
-    {
-        id: 102,
-        name: "Jane Smith",
-        email: "janesmith@example.com",
-        age: 34,
-        location: "New York, USA"
-    },
-    {
-        id: 103,
-        name: "Ali Khan",
-        email: "alikhan@example.com",
-        age: 25,
-        location: "Karachi, Pakistan"
-    },
-    {
-        id: 104,
-        name: "Maria Gonzalez",
-        email: "mariagonzalez@example.com",
-        age: 31,
-        location: "Madrid, Spain"
-    },
-    {
-        id: 105,
-        name: "Kenji Tanaka",
-        email: "kenjitanaka@example.com",
-        age: 27,
-        location: "Tokyo, Japan"
-    }];
+import useCustomers from "../../../hooks/useCustomers";
+
 const AddCustomer = () => {
 
     const [isStop, setStop] = useState(false);
     const [guardianType, setGuardianType] = useState('');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [customers, isPending, refetch] = useCustomers();
+    console.log(customers);
 
     const axiosSucure = useAxiosSecure();
     const navigate = useNavigate();
@@ -97,11 +67,13 @@ const AddCustomer = () => {
 
     const handleGuardianTypeChange = (e) => {
         setGuardianType(e.target.value);
+        setStop(false)
     };
 
 
-    const handleInputChange = () => {
-
+    const handleInputChange = (e) => {
+        const srcCustomer = e.target.value
+        setSearchParams({ customer_Name: srcCustomer })
     }
 
 
@@ -109,7 +81,7 @@ const AddCustomer = () => {
 
         <>
             <section className="max-w-4xl p-6 mx-auto bg-white rounded-md shadow-md dark:bg-gray-800">
-                <form onSubmit={handelAddedCustomer}>
+                <form className="relative" onSubmit={handelAddedCustomer}>
                     <div className="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
                         <div>
                             <label className="text-gray-700 dark:text-gray-200" htmlFor="name">Name</label>
@@ -195,6 +167,19 @@ const AddCustomer = () => {
                         </button>
                     </div>
                 </form>
+            </section>
+            <section className="absolute top-32 left-24">
+                <ul className="bg-white">
+                    {
+                        customers ? (
+                            customers?.map(customer => <li className="hover:text-red-600 border hover:cursor-pointer" key={customer?._id}>{customer?.name}    |     {customer?.guardian?.guardianType} :
+                                {customer?.guardian?.guardianName}    |    {customer?.address}
+                            </li>)
+
+                        ) : (
+                            <p>No Match</p>)
+                    }
+                </ul>
             </section>
         </>
     );
