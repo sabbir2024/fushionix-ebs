@@ -7,6 +7,7 @@ import Products from "../pages/dashbord/products/Products";
 import UpdateProducts from "../pages/dashbord/updateProduct/UpdateProducts";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import AddCustomer from "../pages/dashbord/add-customer/AddCustomer";
+import Customers from "../pages/dashbord/customers/Customers";
 
 
 const axiosSecure = useAxiosSecure()
@@ -46,6 +47,10 @@ const Router = createBrowserRouter([
       {
         path: 'add-customer',
         Component: AddCustomer
+      },
+      {
+        path: 'customers',
+        Component: Customers
       },
     ]
   }

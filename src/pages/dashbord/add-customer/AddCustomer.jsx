@@ -10,7 +10,6 @@ const AddCustomer = () => {
     const [guardianType, setGuardianType] = useState('');
     const [searchParams, setSearchParams] = useSearchParams();
     const [customers, isPending, refetch] = useCustomers();
-    console.log(customers);
 
     const axiosSucure = useAxiosSecure();
     const navigate = useNavigate();
@@ -52,7 +51,8 @@ const AddCustomer = () => {
                     showConfirmButton: false,
                     timer: 1500
                 });
-                setStop(false)
+                setStop(false);
+                navigate('/dashbord/customers')
             }
 
         } catch (error) {
@@ -109,6 +109,8 @@ const AddCustomer = () => {
                                     <option value="" disabled>Select Guardian</option>
                                     <option value="Father">Father</option>
                                     <option value="Husband">Husband</option>
+                                    <option value="Mother">Mother</option>
+                                    <option value="Brother">Brother</option>
                                 </select>
                                 <div>
                                     <div>
