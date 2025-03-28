@@ -1,15 +1,23 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import home from '../../assets/home.jpg'
 import Login from '../login/Login';
 import Signin from '../signIn/Signin';
 import useAuth from '../../hooks/useAuth';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 
 
 const Home = () => {
     const [loginSignup, setLoginSignup] = useState(true);
     const { user } = useAuth();
-    console.log(user)
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (user) {
+            navigate('/dashbord')
+        }
+    }, [user])
+
+
     return (
         <div style={{
             backgroundImage: `url(${home})`,
